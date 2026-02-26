@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-export default function UploadZone({ onFile, hasKey }) {
+export default function UploadZone({ onFile }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef();
 
@@ -25,9 +25,6 @@ export default function UploadZone({ onFile, hasKey }) {
       <div style={styles.icon}>📸</div>
       <p style={styles.primary}>Photo a wall section</p>
       <p style={styles.secondary}>Tap to browse or drag & drop</p>
-      {!hasKey && (
-        <p style={styles.demoHint}>No API key set — analysis will use demo data</p>
-      )}
       <input
         ref={inputRef}
         type="file"
@@ -44,5 +41,4 @@ const styles = {
   icon: { fontSize: 36, marginBottom: 14 },
   primary: { fontSize: 15, fontWeight: 600, color: '#e8e9f0', marginBottom: 6 },
   secondary: { fontSize: 13, color: '#4a4d6a', marginBottom: 0 },
-  demoHint: { fontSize: 11, color: '#f87171', marginTop: 10 },
 };

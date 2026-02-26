@@ -2,57 +2,25 @@ import { useState, useRef } from 'react';
 import './App.css';
 import UploadZone from './components/UploadZone';
 import RouteCard from './components/RouteCard';
-import { analyseWall, DEMO_ROUTES } from './lib/analyseWall';
-
-const KEY_STORAGE = 'climbr_api_key';
+import { DEMO_ROUTES } from './lib/analyseWall';
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem(KEY_STORAGE) || '');
-  const [showSettings, setShowSettings] = useState(false);
-  const [keyDraft, setKeyDraft] = useState('');
   const [image, setImage] = useState(null);
-  const [status, setStatus] = useState(null); // null | 'loading' | 'done' | 'error'
+  const [status, setStatus] = useState(null); // null | 'loading' | 'done'
   const [routes, setRoutes] = useState([]);
-  const [error, setError] = useState(null);
   const fileInputRef = useRef();
-
-  function saveKey(k) {
-    localStorage.setItem(KEY_STORAGE, k);
-    setApiKey(k);
-    setShowSettings(false);
-  }
-
-  function openSettings() {
-    setKeyDraft(apiKey);
-    setShowSettings(true);
-  }
 
   async function handleFile(img) {
     setImage(img);
     setRoutes([]);
-    setError(null);
     setStatus('loading');
-
-    if (!apiKey) {
-      // No key — fall back to demo
-      setTimeout(() => { setRoutes(DEMO_ROUTES); setStatus('done'); }, 1200);
-      return;
-    }
-
-    try {
-      const result = await analyseWall({ apiKey, base64: img.base64, mediaType: img.mediaType });
-      setRoutes(result);
-      setStatus('done');
-    } catch (err) {
-      setError(err.message);
-      setStatus('error');
-    }
+    // Simulate AI analysis — in production this calls a backend
+    setTimeout(() => { setRoutes(DEMO_ROUTES); setStatus('done'); }, 1400);
   }
 
   function retake() {
     setImage(null);
     setRoutes([]);
-    setError(null);
     setStatus(null);
     setTimeout(() => fileInputRef.current?.click(), 50);
   }
@@ -91,50 +59,18 @@ export default function App() {
 
   return (
     <div style={styles.page}>
-      {/* Settings modal */}
-      {showSettings && (
-        <div style={styles.modalOverlay} onClick={() => setShowSettings(false)}>
-          <div style={styles.modal} onClick={e => e.stopPropagation()}>
-            <div style={styles.modalTitle}>API Key</div>
-            <p style={styles.modalHint}>Your Anthropic key — stored locally, never sent anywhere except the API.</p>
-            <input
-              type="password"
-              autoFocus
-              placeholder="sk-ant-..."
-              value={keyDraft}
-              onChange={e => setKeyDraft(e.target.value)}
-              style={styles.modalInput}
-              onKeyDown={e => e.key === 'Enter' && saveKey(keyDraft)}
-            />
-            <div style={styles.modalActions}>
-              <button className="btn-primary" onClick={() => saveKey(keyDraft)}>Save</button>
-              <button className="btn-ghost" onClick={() => setShowSettings(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>
           <span style={styles.logo}>climbr</span>
           <span style={styles.modeBadge}>Manager Mode</span>
         </div>
-        <button style={styles.settingsBtn} onClick={openSettings} title="API key settings">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-        </button>
       </header>
 
       <main className="main-container">
-        {/* Error */}
-        {error && <div style={styles.error}>{error}</div>}
-
         {/* Upload or image preview */}
         {!image ? (
-          <UploadZone onFile={handleFile} hasKey={!!apiKey} />
+          <UploadZone onFile={handleFile} />
         ) : (
           <div style={styles.imageWrap}>
             <img src={image.dataUrl} alt="Wall" style={styles.image} />
@@ -228,36 +164,20 @@ const styles = {
     borderRadius: 4,
     letterSpacing: '0.2px',
   },
-  settingsBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#4a4d6a',
-    cursor: 'pointer',
-    padding: 6,
-    borderRadius: 6,
-    display: 'flex',
-    alignItems: 'center',
-    transition: 'color 0.15s',
-  },
-
-  error: {
-    background: 'rgba(220,38,38,0.1)',
-    border: '1px solid rgba(220,38,38,0.3)',
-    color: '#f87171',
-    padding: '12px 16px',
-    borderRadius: 10,
-    fontSize: 13,
-    marginBottom: 20,
-  },
 
   imageWrap: {
     position: 'relative',
     borderRadius: 14,
     overflow: 'hidden',
-    background: '#13152b',
+    lineHeight: 0,
     marginBottom: 28,
   },
-  image: { width: '100%', display: 'block' },
+  image: {
+    width: '100%',
+    display: 'block',
+    maxHeight: '70vh',
+    objectFit: 'cover',
+  },
   loadingOverlay: {
     position: 'absolute',
     inset: 0,
@@ -322,40 +242,4 @@ const styles = {
     padding: '2px 8px',
     borderRadius: 99,
   },
-
-  // Settings modal
-  modalOverlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 100,
-    padding: 24,
-    backdropFilter: 'blur(4px)',
-  },
-  modal: {
-    background: '#13152b',
-    border: '1px solid #252845',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-  },
-  modalTitle: { fontSize: 16, fontWeight: 700, marginBottom: 8, color: '#e8e9f0' },
-  modalHint: { fontSize: 13, color: '#4a4d6a', marginBottom: 16, lineHeight: 1.5 },
-  modalInput: {
-    width: '100%',
-    background: '#0c0d1a',
-    border: '1px solid #252845',
-    color: '#e8e9f0',
-    padding: '10px 14px',
-    borderRadius: 8,
-    fontSize: 13,
-    marginBottom: 16,
-    outline: 'none',
-    fontFamily: 'monospace',
-  },
-  modalActions: { display: 'flex', gap: 10 },
 };

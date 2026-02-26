@@ -32,6 +32,8 @@ const styles = {
     display: 'flex',
     gap: 5,
     overflowX: 'auto',
+    width: '100%',
+    maxWidth: '100%',
     paddingBottom: 4,
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',

@@ -169,6 +169,7 @@ const styles = {
     borderRadius: 14,
     overflow: 'hidden',
     lineHeight: 0,
+    width: '100%',
     marginBottom: 28,
   },
   image: {

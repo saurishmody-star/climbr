@@ -103,7 +103,6 @@ export default function App() {
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           style={{ display: 'none' }}
           onChange={handleRetakeFile}
         />
@@ -174,9 +173,8 @@ const styles = {
   },
   image: {
     width: '100%',
+    height: 'auto',
     display: 'block',
-    maxHeight: '70vh',
-    objectFit: 'cover',
   },
   loadingOverlay: {
     position: 'absolute',

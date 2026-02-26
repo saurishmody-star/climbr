@@ -23,13 +23,12 @@ export default function UploadZone({ onFile }) {
       onDrop={e => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
     >
       <div style={styles.icon}>📸</div>
-      <p style={styles.primary}>Photo a wall section</p>
-      <p style={styles.secondary}>Tap to browse or drag & drop</p>
+      <p style={styles.primary}>Snap a picture of the wall</p>
+      <p style={styles.secondary}>Tap to use camera or pick from library</p>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         style={{ display: 'none' }}
         onChange={e => handleFile(e.target.files[0])}
       />

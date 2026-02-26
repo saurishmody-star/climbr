@@ -1,51 +1,59 @@
-import { GRADES_V, GRADES_FONT, vToFont } from '../lib/grades';
+import GradeSelector from './GradeSelector';
 
-function ConfidenceBadge({ level }) {
-  const cls = `badge badge-${level || 'low'}`;
-  const labels = { high: 'High', medium: 'Med', low: 'Low' };
-  return <span className={cls}>{labels[level] || level}</span>;
-}
+const CONFIDENCE_STYLES = {
+  high:   { bg: 'rgba(74,222,128,0.1)',  color: '#4ade80' },
+  medium: { bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24' },
+  low:    { bg: 'rgba(248,113,113,0.1)', color: '#f87171' },
+};
 
 export default function RouteCard({ route, onChange }) {
   const { color_name, hex, hold_count, confidence, notes } = route;
-
-  function handleVChange(e) {
-    const v = e.target.value;
-    onChange({ gradeV: v, gradeFont: v ? vToFont(v) : '' });
-  }
+  const conf = CONFIDENCE_STYLES[confidence] || CONFIDENCE_STYLES.low;
 
   return (
     <div className="route-card">
-      <div style={{ height: 12, borderRadius: 6, background: hex, marginBottom: 14 }} />
-
-      <div style={styles.nameRow}>
-        <span style={styles.name}>{color_name}</span>
-        <ConfidenceBadge level={confidence} />
+      {/* Colour swatch */}
+      <div style={{ height: 44, borderRadius: 8, background: hex, marginBottom: 14, position: 'relative' }}>
+        <span style={{
+          position: 'absolute',
+          bottom: 8,
+          left: 10,
+          fontSize: 12,
+          fontWeight: 700,
+          color: 'rgba(0,0,0,0.6)',
+          letterSpacing: '-0.2px',
+        }}>
+          {color_name}
+        </span>
+        <span style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          fontSize: 10,
+          fontWeight: 600,
+          background: conf.bg,
+          color: conf.color,
+          padding: '2px 6px',
+          borderRadius: 99,
+          textTransform: 'uppercase',
+          letterSpacing: '0.3px',
+          backdropFilter: 'blur(4px)',
+        }}>
+          {confidence}
+        </span>
       </div>
 
       <div style={styles.meta}>{hold_count} holds visible</div>
 
       <div style={styles.gradeLabel}>Grade</div>
-      <div style={styles.gradeRow}>
-        <div className="grade-select-wrap">
-          <select value={route.gradeV || ''} onChange={handleVChange}>
-            <option value="">V-Scale</option>
-            {GRADES_V.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
-        </div>
-        <div className="grade-select-wrap">
-          <select
-            value={route.gradeFont || ''}
-            onChange={e => onChange({ gradeFont: e.target.value })}
-          >
-            <option value="">Font</option>
-            {GRADES_FONT.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
-        </div>
-      </div>
+      <GradeSelector value={route.gradeV || ''} onChange={v => onChange({ gradeV: v })} />
+
+      {route.gradeV && (
+        <div style={styles.gradeDisplay}>{route.gradeV}</div>
+      )}
 
       <textarea
-        style={styles.notes}
+        className="route-notes"
         placeholder={notes || 'Setter notes...'}
         value={route.setterNotes || ''}
         onChange={e => onChange({ setterNotes: e.target.value })}
@@ -56,47 +64,23 @@ export default function RouteCard({ route, onChange }) {
 }
 
 const styles = {
-  nameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  name: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#e0e0e0',
-  },
   meta: {
     fontSize: 11,
-    color: '#555',
+    color: '#4a4d6a',
     marginBottom: 14,
   },
   gradeLabel: {
     fontSize: 10,
-    color: '#555',
+    color: '#4a4d6a',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    marginBottom: 6,
+    marginBottom: 8,
   },
-  gradeRow: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 6,
-    marginBottom: 10,
-  },
-  notes: {
-    width: '100%',
-    background: '#111',
-    border: '1px solid #2a2a2a',
-    color: '#ccc',
-    padding: '7px 10px',
-    borderRadius: 6,
-    fontSize: 12,
-    resize: 'none',
-    display: 'block',
-    fontFamily: 'inherit',
-    outline: 'none',
-    transition: 'border-color 0.15s',
+  gradeDisplay: {
+    fontSize: 22,
+    fontWeight: 800,
+    color: '#e8e9f0',
+    letterSpacing: '-0.5px',
+    margin: '10px 0 8px',
   },
 };

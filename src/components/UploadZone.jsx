@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-export default function UploadZone({ onFile }) {
+export default function UploadZone({ onFile, hasKey }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef();
 
@@ -9,27 +9,30 @@ export default function UploadZone({ onFile }) {
     const reader = new FileReader();
     reader.onload = ev => {
       const dataUrl = ev.target.result;
-      const base64 = dataUrl.split(',')[1];
-      onFile({ base64, mediaType: file.type, dataUrl });
+      onFile({ base64: dataUrl.split(',')[1], mediaType: file.type, dataUrl });
     };
     reader.readAsDataURL(file);
   }
 
   return (
     <div
-      style={{ ...styles.zone, ...(dragging ? styles.zoneDrag : {}) }}
+      className={`upload-zone${dragging ? ' drag-over' : ''}`}
       onClick={() => inputRef.current.click()}
       onDragOver={e => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={e => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
     >
       <div style={styles.icon}>📸</div>
-      <p style={styles.primary}><strong>Upload a wall photo</strong></p>
-      <p style={styles.secondary}>Drag & drop or click to browse</p>
+      <p style={styles.primary}>Photo a wall section</p>
+      <p style={styles.secondary}>Tap to browse or drag & drop</p>
+      {!hasKey && (
+        <p style={styles.demoHint}>No API key set — analysis will use demo data</p>
+      )}
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
+        capture="environment"
         style={{ display: 'none' }}
         onChange={e => handleFile(e.target.files[0])}
       />
@@ -38,20 +41,8 @@ export default function UploadZone({ onFile }) {
 }
 
 const styles = {
-  zone: {
-    border: '2px dashed #2a2a2a',
-    borderRadius: 12,
-    padding: 48,
-    textAlign: 'center',
-    cursor: 'pointer',
-    transition: 'border-color 0.2s, background 0.2s',
-    marginBottom: 28,
-  },
-  zoneDrag: {
-    borderColor: '#555',
-    background: '#161616',
-  },
-  icon: { fontSize: 32, marginBottom: 12 },
-  primary: { color: '#ccc', fontSize: 14, marginBottom: 4 },
-  secondary: { color: '#888', fontSize: 14 },
+  icon: { fontSize: 36, marginBottom: 14 },
+  primary: { fontSize: 15, fontWeight: 600, color: '#e8e9f0', marginBottom: 6 },
+  secondary: { fontSize: 13, color: '#4a4d6a', marginBottom: 0 },
+  demoHint: { fontSize: 11, color: '#f87171', marginTop: 10 },
 };

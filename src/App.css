@@ -1,3 +1,173 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Layout classes (need media queries — can't do in inline styles) */
+.main-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.preview-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.preview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.export-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #1a1a1a;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #f0f0f0;
+  color: #0f0f0f;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.15s, transform 0.1s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: #888;
+  border: 1px solid #2a2a2a;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: border-color 0.15s, color 0.15s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-ghost:hover { border-color: #444; color: #ccc; }
+.btn-ghost:active { transform: scale(0.97); }
+.btn-ghost:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Route card */
+.route-card {
+  background: #1a1a1a;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color 0.15s;
+}
+.route-card:hover { border-color: #333; }
+
+/* Confidence badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.badge-high   { background: rgba(22, 163, 74, 0.15);  color: #4ade80; }
+.badge-medium { background: rgba(202, 138, 4, 0.15);  color: #fbbf24; }
+.badge-low    { background: rgba(220, 38, 38, 0.15);  color: #f87171; }
+
+/* Grade select with chevron */
+.grade-select-wrap {
+  position: relative;
+}
+.grade-select-wrap::after {
+  content: '⌄';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: 13px;
+  color: #555;
+  pointer-events: none;
+  line-height: 1;
+}
+.grade-select-wrap select {
+  width: 100%;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  color: #ccc;
+  padding: 7px 24px 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+}
+.grade-select-wrap select:focus {
+  outline: none;
+  border-color: #444;
+}
+
+/* Step indicator */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 24px;
+  margin-bottom: 0;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #444;
+  padding: 12px 0;
+  white-space: nowrap;
+}
+.step.active { color: #f0f0f0; }
+.step.done   { color: #4ade80; }
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #333;
+  flex-shrink: 0;
+}
+.step.active .step-dot { background: #f0f0f0; box-shadow: 0 0 0 2px rgba(240,240,240,0.15); }
+.step.done   .step-dot { background: #4ade80; }
+.step-line {
+  flex: 1;
+  height: 1px;
+  background: #222;
+  min-width: 24px;
+  max-width: 48px;
+}
+
+@media (max-width: 640px) {
+  .main-container { padding: 20px 16px; }
+  .preview-row { flex-direction: column; }
+  .preview-actions { flex-direction: row; flex-wrap: wrap; }
+  .export-row { flex-direction: column; }
+  .export-row .btn-primary,
+  .export-row .btn-ghost { width: 100%; text-align: center; }
+  .steps { padding: 0 16px; }
+}

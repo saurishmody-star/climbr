@@ -4,12 +4,32 @@ import UploadZone from './components/UploadZone';
 import RouteCard from './components/RouteCard';
 import { analyseWall, DEMO_ROUTES } from './lib/analyseWall';
 
+function Steps({ step }) {
+  // step: 0 = upload, 1 = analyse, 2 = grade
+  const items = ['Upload', 'Analyse', 'Grade'];
+  return (
+    <div className="steps">
+      {items.map((label, i) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < items.length - 1 ? 1 : 'none' }}>
+          <div className={`step ${i === step ? 'active' : i < step ? 'done' : ''}`}>
+            <span className="step-dot" />
+            {label}
+          </div>
+          {i < items.length - 1 && <div className="step-line" />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [apiKey, setApiKey] = useState('');
-  const [image, setImage] = useState(null); // { base64, mediaType, dataUrl }
+  const [image, setImage] = useState(null);
   const [status, setStatus] = useState(null); // null | 'loading' | 'done'
   const [routes, setRoutes] = useState([]);
   const [error, setError] = useState(null);
+
+  const step = !image ? 0 : routes.length === 0 ? 1 : 2;
 
   function handleFile(img) {
     setImage(img);
@@ -66,14 +86,19 @@ export default function App() {
   }
 
   return (
-    <div style={styles.page}>
+    <div style={{ minHeight: '100vh' }}>
       <header style={styles.header}>
-        <span style={styles.headerTitle}>climbr</span>
-        <span style={styles.headerBadge}>Wall Setter</span>
+        <div style={styles.headerLeft}>
+          <span style={styles.headerTitle}>climbr</span>
+          <span style={styles.headerBadge}>Wall Setter</span>
+        </div>
       </header>
 
-      <main style={styles.main}>
-        {/* API Key */}
+      <div style={styles.stepBar}>
+        <Steps step={step} />
+      </div>
+
+      <main className="main-container">
         <input
           type="password"
           placeholder="Anthropic API key (sk-ant-...)"
@@ -88,22 +113,22 @@ export default function App() {
           <UploadZone onFile={handleFile} />
         ) : (
           <>
-            <div style={styles.previewRow}>
+            <div className="preview-row">
               <div style={styles.previewImgWrap}>
                 <img src={image.dataUrl} alt="Wall" style={styles.previewImg} />
               </div>
-              <div style={styles.previewActions}>
+              <div className="preview-actions">
                 <button
-                  style={{ ...styles.btnPrimary, opacity: status === 'loading' ? 0.4 : 1 }}
+                  className="btn-primary"
                   onClick={handleAnalyse}
                   disabled={status === 'loading'}
                 >
                   Analyse wall
                 </button>
-                <button style={styles.btnGhost} onClick={handleDemo} disabled={status === 'loading'}>
+                <button className="btn-ghost" onClick={handleDemo} disabled={status === 'loading'}>
                   Demo mode
                 </button>
-                <button style={styles.btnGhost} onClick={reset}>
+                <button className="btn-ghost" onClick={reset}>
                   Change photo
                 </button>
               </div>
@@ -111,8 +136,10 @@ export default function App() {
 
             {status === 'loading' && (
               <div style={styles.statusBar}>
-                <span style={styles.spinner} />
-                <span>Analysing wall for hold colours...</span>
+                <div style={styles.pulseTrack}>
+                  <div style={styles.pulseBar} />
+                </div>
+                <span style={{ fontSize: 13, color: '#888' }}>Analysing wall for hold colours...</span>
               </div>
             )}
           </>
@@ -122,7 +149,7 @@ export default function App() {
           <>
             <div style={styles.routesHeader}>
               <span style={styles.routesTitle}>Detected routes</span>
-              <span style={styles.routesCount}>{routes.length} colour{routes.length !== 1 ? 's' : ''} detected</span>
+              <span style={styles.routesCount}>{routes.length} colour{routes.length !== 1 ? 's' : ''}</span>
             </div>
 
             <div style={styles.grid}>
@@ -131,9 +158,9 @@ export default function App() {
               ))}
             </div>
 
-            <div style={styles.exportRow}>
-              <button style={styles.btnPrimary} onClick={exportJSON}>Save set</button>
-              <button style={styles.btnGhost} onClick={copyJSON}>Copy JSON</button>
+            <div className="export-row">
+              <button className="btn-primary" onClick={exportJSON}>Save set</button>
+              <button className="btn-ghost" onClick={copyJSON}>Copy JSON</button>
             </div>
           </>
         )}
@@ -143,117 +170,101 @@ export default function App() {
 }
 
 const styles = {
-  page: { minHeight: '100vh' },
   header: {
-    padding: '20px 24px',
-    borderBottom: '1px solid #222',
+    padding: '16px 24px',
+    borderBottom: '1px solid #1a1a1a',
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'space-between',
   },
-  headerTitle: { fontSize: 18, fontWeight: 600, letterSpacing: '-0.3px' },
+  headerLeft: { display: 'flex', alignItems: 'center', gap: 10 },
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: 700,
+    letterSpacing: '-0.5px',
+    background: 'linear-gradient(135deg, #fff 0%, #aaa 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  },
   headerBadge: {
-    fontSize: 12,
-    color: '#666',
-    background: '#1a1a1a',
+    fontSize: 11,
+    color: '#555',
+    background: '#161616',
+    border: '1px solid #222',
     padding: '3px 8px',
     borderRadius: 4,
+    letterSpacing: '0.2px',
   },
-  main: { maxWidth: 960, margin: '0 auto', padding: '32px 24px' },
+  stepBar: {
+    borderBottom: '1px solid #1a1a1a',
+  },
   apiInput: {
     width: '100%',
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
+    background: '#161616',
+    border: '1px solid #252525',
     color: '#f0f0f0',
     padding: '10px 14px',
     borderRadius: 8,
     fontSize: 13,
     marginBottom: 24,
     outline: 'none',
+    transition: 'border-color 0.15s',
   },
   error: {
     background: '#1a0a0a',
     border: '1px solid #3a1515',
-    color: '#ff8080',
+    color: '#f87171',
     padding: '12px 16px',
     borderRadius: 8,
     fontSize: 13,
     marginBottom: 20,
-  },
-  previewRow: {
-    display: 'flex',
-    gap: 24,
-    marginBottom: 28,
   },
   previewImgWrap: {
     flex: 1,
     borderRadius: 10,
     overflow: 'hidden',
     background: '#111',
+    minWidth: 0,
   },
   previewImg: { width: '100%', display: 'block' },
-  previewActions: {
+  statusBar: {
     display: 'flex',
     flexDirection: 'column',
     gap: 10,
-    alignItems: 'flex-start',
+    padding: '14px 0',
+    marginBottom: 20,
   },
-  statusBar: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '12px 16px',
-    background: '#1a1a1a',
-    borderRadius: 8,
-    marginBottom: 28,
-    fontSize: 13,
-    color: '#aaa',
+  pulseTrack: {
+    height: 3,
+    background: '#1e1e1e',
+    borderRadius: 99,
+    overflow: 'hidden',
   },
-  spinner: {
-    display: 'inline-block',
-    width: 16,
-    height: 16,
-    border: '2px solid #333',
-    borderTopColor: '#f0f0f0',
-    borderRadius: '50%',
-    animation: 'spin 0.7s linear infinite',
-    flexShrink: 0,
+  pulseBar: {
+    height: '100%',
+    width: '40%',
+    background: 'linear-gradient(90deg, transparent, #f0f0f0, transparent)',
+    borderRadius: 99,
+    animation: 'pulse-bar 1.4s ease-in-out infinite',
   },
   routesHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  routesTitle: { fontSize: 15, fontWeight: 600 },
-  routesCount: { fontSize: 12, color: '#555' },
+  routesTitle: { fontSize: 14, fontWeight: 600, color: '#e0e0e0' },
+  routesCount: {
+    fontSize: 11,
+    color: '#555',
+    background: '#161616',
+    border: '1px solid #222',
+    padding: '3px 8px',
+    borderRadius: 4,
+  },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
     gap: 12,
-  },
-  exportRow: {
-    display: 'flex',
-    gap: 10,
-    marginTop: 28,
-    paddingTop: 24,
-    borderTop: '1px solid #1a1a1a',
-  },
-  btnPrimary: {
-    background: '#f0f0f0',
-    color: '#0f0f0f',
-    border: 'none',
-    padding: '11px 22px',
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 600,
-  },
-  btnGhost: {
-    background: 'transparent',
-    color: '#888',
-    border: '1px solid #2a2a2a',
-    padding: '10px 18px',
-    borderRadius: 8,
-    fontSize: 13,
   },
 };
